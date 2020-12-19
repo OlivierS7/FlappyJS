@@ -27,7 +27,7 @@ const redbird_downflap = new Image();
 redbird_downflap.src = "./assets/images/redbird-downflap.png";
 
 const bluebird_midflap = new Image();
-bluebird_midflap.src = "./assets/images/bluebird-upflap.png";
+bluebird_midflap.src = "./assets/images/bluebird-midflap.png";
 
 const bluebird_downflap = new Image();
 bluebird_downflap.src = "./assets/images/bluebird-downflap.png";
@@ -47,21 +47,35 @@ pipe_red_up.src = "./assets/images/pipe-red-up.png";
 const pipe_red_down = new Image();
 pipe_red_down.src = "./assets/images/pipe-red-down.png";
 
+const settings = new Image();
+settings.src = "./assets/images/settings.png";
+
+const validate = new Image();
+validate.src = "./assets/images/validate.png";
+
+const day_night = new Image();
+day_night.src = "./assets/images/DayNightSettings.png";
+
 /* Settings */
-let isPlaying = false;
 const gravity = .4;
 const speed = 4;
 const birdSize = [34, 24];
 const jump = -11;
 const leftSpaceBird = (canvas.width / 10);
+let isPlaying = false;
+let gameStatus = 0;
 let isDay = true;
 let birdColor = "yellow";
 let pipeColor = "green";
 
-/* Pipe settings */
+/* Pipe Settings */
 const pipeWidth = 52;
 const pipeGap = 270;
 const pipeLocation = () => (Math.random() * ((canvas.height - (pipeGap + pipeWidth)) - pipeWidth)) + pipeWidth;
+
+/* Parameters Location Settings */
+let parametersRect = { x: 0, y: 0, w: 60, h: 50 };
+let parametersMenuRect = { x: 0, y: 0, w: canvas.width, h: canvas.height };
 
 let index = 0;
 let backgroundPosition = 0;
@@ -81,10 +95,12 @@ const startGame = () => {
 
 /* Animate the canvas */
 const render = () => {
+    ctx.fillStyle = "#000000";
     if (isDay)
         drawBackground(background_day);
     else
         drawBackground(background_night);
+
     if (isPlaying) {
         if (index < 8)
             drawBirdUp(leftSpaceBird);
@@ -92,9 +108,9 @@ const render = () => {
             drawBirdMid(leftSpaceBird);
         else
             drawBirdDown(leftSpaceBird);
+
         flight += gravity;
         flyHeight = Math.min(flyHeight + flight, canvas.height - birdSize[1]);
-
 
         spawnPipes();
 
@@ -107,8 +123,52 @@ const render = () => {
             drawBirdDown(canvas.width / 2 - 20);
 
         displayStartInformation();
+        ctx.fillStyle = "#000000f0";
+        if (gameStatus == 0) {
+            ctx.drawImage(settings, canvas.width - settings.width, 0, settings.width, settings.height);
+        }
+        if (gameStatus == 1) {
+            ctx.fillRect(parametersMenuRect.x, parametersMenuRect.y, parametersMenuRect.w, parametersMenuRect.h);
+            ctx.drawImage(validate, canvas.width - validate.width, 0, validate.width, validate.height);
+            switch (birdColor) {
+                case "yellow":
+                    ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
+                    ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                    ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                    break;
+                case "red":
+                    ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                    ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
+                    ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                    break;
+                case "blue":
+                    ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                    ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                    ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
+            }
+            ctx.drawImage(day_night, 2 * canvas.width / 3 - 75, canvas.height / 2.4, day_night.width, day_night.height);
+            ctx.font = "normal 32px VT323";
+            ctx.fillStyle = "white";
+            if (isDay) {
+                ctx.fillText("Day Theme", 85, 300);
+            } else {
+                ctx.fillText("Night Theme", 75, 300);
+            }
+            switch (pipeColor) {
+                case "green":
+                    ctx.drawImage(pipe_green_up, 0, 0, pipeWidth, canvas.height - 150, canvas.width / 4, canvas.height - 150, pipeWidth, canvas.height / 3);
+                    ctx.drawImage(pipe_red_up, 0, 0, pipeWidth, canvas.height - 110, canvas.width / 4 * 3 - pipeWidth, canvas.height - 110, pipeWidth, canvas.height / 3);
+                    break;
+                case "red":
+                    ctx.drawImage(pipe_green_up, 0, 0, pipeWidth, canvas.height - 110, canvas.width / 4, canvas.height - 110, pipeWidth, canvas.height / 3);
+                    ctx.drawImage(pipe_red_up, 0, 0, pipeWidth, canvas.height - 150, canvas.width / 4 * 3 - pipeWidth, canvas.height - 150, pipeWidth, canvas.height / 3);
+            }
+
+
+        }
     }
 
+    /* Change bird sprite and background position */
     backgroundPosition++;
     index++;
     index %= 24;
@@ -116,11 +176,9 @@ const render = () => {
     document.getElementById('bestScore').innerHTML = "Best : " + bestScore;
     document.getElementById('currentScore').innerHTML = "Current : " + currentScore;
 
-
     window.requestAnimationFrame(render);
 }
 
-/* Draw birds */
 function drawBirdUp(dx) {
     switch (birdColor) {
         case "yellow":
@@ -134,7 +192,6 @@ function drawBirdUp(dx) {
     }
 }
 
-/* Draw birds */
 function drawBirdMid(dx) {
     switch (birdColor) {
         case "yellow":
@@ -148,7 +205,6 @@ function drawBirdMid(dx) {
     }
 }
 
-/* Draw birds */
 function drawBirdDown(dx) {
     switch (birdColor) {
         case "yellow":
@@ -185,6 +241,7 @@ function spawnPipes() {
 
         if ([pipe[0] <= leftSpaceBird + birdSize[0], pipe[0] + pipeWidth >= leftSpaceBird, pipe[1] > flyHeight || pipe[1] + pipeGap < flyHeight + birdSize[1]].every(elem => elem)) {
             isPlaying = false;
+            gameStatus = 0;
             startGame();
         }
     });
@@ -192,10 +249,14 @@ function spawnPipes() {
 
 function displayStartInformation() {
     /* Display start information */
+    ctx.fillStyle = "black";
     ctx.fillText("Best score : " + bestScore, 60, 140);
     ctx.font = "italic 26px VT323";
     ctx.fillText("Click to play", 75, 360);
     ctx.font = "normal 32px VT323";
+
+    /* Reset the Background Position */
+    backgroundPosition = 0;
 }
 
 function drawBackground(image) {
@@ -205,10 +266,55 @@ function drawBackground(image) {
 
 startGame();
 background_day.onload = render;
-canvas.addEventListener("click", () => {
-    isPlaying = true
-    flight = jump;
+canvas.addEventListener("click", function(e) {
+    isParameters = openParameters(parametersRect, e.offsetX, e.offsetY);
+    switch (isParameters) {
+        case 0:
+            displayStartInformation();
+            console.log("Close menu");
+            break;
+        case 1:
+            openParametersMenu();
+            console.log("Open menu");
+            break;
+        case 2:
+            isPlaying = true
+            flight = jump;
+            console.log("Playing");
+            break;
+    }
 });
+
+function openParameters(x, y) {
+    isOnSettings(x, y);
+
+    isOnTheme(x, y);
+
+    return gameStatus;
+}
+
+function openParametersMenu() {
+    ctx.fillRect(parametersMenuRect.x, parametersMenuRect.y, parametersMenuRect.w, parametersMenuRect.h);
+}
+
+function isOnSettings(x, y) {
+    let left = canvas.width - settings.width;
+    let right = canvas.width
+    let top = 0;
+    let bottom = settings.height;
+    if (right >= x && left <= x && bottom >= y && top <= y) {
+        if (!isPlaying) {
+            gameStatus = (gameStatus + 1) % 2;
+        }
+    } else {
+        gameStatus = (gameStatus + 1) % 2 + 1;
+    }
+}
+
+function isOnTheme(x, y) {
+
+}
+
 
 document.getElementById("dayOrNight").addEventListener("click", () => {
     isDay = !isDay;
