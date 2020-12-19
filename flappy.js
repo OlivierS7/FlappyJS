@@ -266,30 +266,28 @@ function drawBackground(image) {
 
 startGame();
 background_day.onload = render;
+
 canvas.addEventListener("click", function(e) {
-    isParameters = openParameters(parametersRect, e.offsetX, e.offsetY);
+    isParameters = openParameters(e.offsetX, e.offsetY);
     switch (isParameters) {
         case 0:
             displayStartInformation();
-            console.log("Close menu");
             break;
         case 1:
             openParametersMenu();
-            console.log("Open menu");
             break;
         case 2:
             isPlaying = true
             flight = jump;
-            console.log("Playing");
             break;
     }
 });
 
 function openParameters(x, y) {
     isOnSettings(x, y);
-
+    isOnBirds(x, y);
     isOnTheme(x, y);
-
+    isOnPipes(x, y);
     return gameStatus;
 }
 
@@ -311,31 +309,65 @@ function isOnSettings(x, y) {
     }
 }
 
-function isOnTheme(x, y) {
-
+function isOnBirds(x, y) {
+    let left = (canvas.width / 3) - 65;
+    let right = canvas.width / 3 - 65 + birdSize[0];
+    let top = canvas.height / 4;
+    let bottom = (canvas.height / 4) + birdSize[1];
+    if (right >= x && left <= x && bottom >= y && top <= y) {
+        if (!isPlaying) {
+            birdColor = "yellow";
+        }
+    }
+    left = (2 * canvas.width / 3) - 65;
+    right = (2 * canvas.width / 3) - 65 + birdSize[0];
+    top = canvas.height / 4;
+    bottom = (canvas.height / 4) + birdSize[1];
+    if (right >= x && left <= x && bottom >= y && top <= y) {
+        if (!isPlaying) {
+            birdColor = "red";
+        }
+    }
+    left = (3 * canvas.width / 3) - 65;
+    right = (3 * canvas.width / 3) - 65 + birdSize[0];
+    top = canvas.height / 4;
+    bottom = (canvas.height / 4) + birdSize[1];
+    if (right >= x && left <= x && bottom >= y && top <= y) {
+        if (!isPlaying) {
+            birdColor = "blue";
+        }
+    }
 }
 
+function isOnTheme(x, y) {
+    let left = 2 * canvas.width / 3 - 75;
+    let right = 2 * canvas.width / 3 - 75 + day_night.width;
+    let top = canvas.height / 2.4;
+    let bottom = canvas.height / 2.4 + day_night.height;
+    if (right >= x && left <= x && bottom >= y && top <= y) {
+        if (!isPlaying) {
+            isDay = !isDay;
+        }
+    }
+}
 
-document.getElementById("dayOrNight").addEventListener("click", () => {
-    isDay = !isDay;
-});
-
-document.getElementById("yellowBird").addEventListener("click", () => {
-    birdColor = "yellow";
-});
-
-document.getElementById("redBird").addEventListener("click", () => {
-    birdColor = "red";
-});
-
-document.getElementById("blueBird").addEventListener("click", () => {
-    birdColor = "blue";
-});
-
-document.getElementById("greenPipe").addEventListener("click", () => {
-    pipeColor = "green";
-});
-
-document.getElementById("redPipe").addEventListener("click", () => {
-    pipeColor = "red";
-});
+function isOnPipes(x, y) {
+    let left = canvas.width / 4;
+    let right = (canvas.width / 4) + pipeWidth;
+    let top = canvas.height - 110;
+    let bottom = canvas.height;
+    if (right >= x && left <= x && bottom >= y && top <= y) {
+        if (!isPlaying) {
+            pipeColor = "green";
+        }
+    }
+    left = (3 * canvas.width) / 4 - pipeWidth;
+    right = (3 * canvas.width / 4);
+    top = canvas.height - 110;
+    bottom = canvas.height;
+    if (right >= x && left <= x && bottom >= y && top <= y) {
+        if (!isPlaying) {
+            pipeColor = "red";
+        }
+    }
+}
