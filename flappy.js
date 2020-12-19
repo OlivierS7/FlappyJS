@@ -57,8 +57,8 @@ const day_night = new Image();
 day_night.src = "./assets/images/DayNightSettings.png";
 
 /* Settings */
-const gravity = .4;
-const speed = 4;
+const gravity = .5;
+const speed = 7;
 const birdSize = [34, 24];
 const jump = -11;
 const leftSpaceBird = (canvas.width / 10);
@@ -90,81 +90,86 @@ const startGame = () => {
     flight = jump;
     flyHeight = (canvas.height / 2) - (birdSize[1] / 2);
 
-    pipes = Array(3).fill().map((a, i) => [canvas.width + (i * (pipeGap + pipeWidth)), pipeLocation()])
+    pipes = Array(2).fill().map((a, i) => [(canvas.width + (i * (pipeGap + pipeWidth))) * 1.2, pipeLocation()])
 }
 
 /* Animate the canvas */
-const render = () => {
-    ctx.fillStyle = "#000000";
-    if (isDay)
-        drawBackground(background_day);
-    else
-        drawBackground(background_night);
-
-    if (isPlaying) {
-        if (index < 8)
-            drawBirdUp(leftSpaceBird);
-        else if (index < 16)
-            drawBirdMid(leftSpaceBird);
+function render() {
+    requestAnimationFrame(render);
+    now = Date.now();
+    elapsed = now - then;
+    if (elapsed > fpsInterval) {
+        then = now - (elapsed % fpsInterval);
+        ctx.fillStyle = "#000000";
+        if (isDay)
+            drawBackground(background_day);
         else
-            drawBirdDown(leftSpaceBird);
+            drawBackground(background_night);
 
-        flight += gravity;
-        flyHeight = Math.min(flyHeight + flight, canvas.height - birdSize[1]);
+        if (isPlaying) {
+            if (index < 8)
+                drawBirdUp(leftSpaceBird);
+            else if (index < 16)
+                drawBirdMid(leftSpaceBird);
+            else
+                drawBirdDown(leftSpaceBird);
 
-        spawnPipes();
+            flight += gravity;
+            flyHeight = Math.min(flyHeight + flight, canvas.height - birdSize[1]);
 
-    } else {
-        if (index < 8)
-            drawBirdUp(canvas.width / 2 - 20);
-        else if (index < 16)
-            drawBirdMid(canvas.width / 2 - 20);
-        else
-            drawBirdDown(canvas.width / 2 - 20);
+            spawnPipes();
 
-        displayStartInformation();
-        ctx.fillStyle = "#000000f0";
-        if (gameStatus == 0) {
-            ctx.drawImage(settings, canvas.width - settings.width, 0, settings.width, settings.height);
-        }
-        if (gameStatus == 1) {
-            ctx.fillRect(parametersMenuRect.x, parametersMenuRect.y, parametersMenuRect.w, parametersMenuRect.h);
-            ctx.drawImage(validate, canvas.width - validate.width, 0, validate.width, validate.height);
-            switch (birdColor) {
-                case "yellow":
-                    ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
-                    ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
-                    ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
-                    break;
-                case "red":
-                    ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
-                    ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
-                    ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
-                    break;
-                case "blue":
-                    ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
-                    ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
-                    ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
+        } else {
+            if (index < 8)
+                drawBirdUp(canvas.width / 2 - 20);
+            else if (index < 16)
+                drawBirdMid(canvas.width / 2 - 20);
+            else
+                drawBirdDown(canvas.width / 2 - 20);
+
+            displayStartInformation();
+            ctx.fillStyle = "#000000f0";
+            if (gameStatus == 0) {
+                ctx.drawImage(settings, canvas.width - settings.width, 0, settings.width, settings.height);
             }
-            ctx.drawImage(day_night, 2 * canvas.width / 3 - 75, canvas.height / 2.4, day_night.width, day_night.height);
-            ctx.font = "normal 32px VT323";
-            ctx.fillStyle = "white";
-            if (isDay) {
-                ctx.fillText("Day Theme", 85, 300);
-            } else {
-                ctx.fillText("Night Theme", 75, 300);
+            if (gameStatus == 1) {
+                ctx.fillRect(parametersMenuRect.x, parametersMenuRect.y, parametersMenuRect.w, parametersMenuRect.h);
+                ctx.drawImage(validate, canvas.width - validate.width, 0, validate.width, validate.height);
+                switch (birdColor) {
+                    case "yellow":
+                        ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
+                        ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                        ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                        break;
+                    case "red":
+                        ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                        ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
+                        ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                        break;
+                    case "blue":
+                        ctx.drawImage(yellowbird_upflap, canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                        ctx.drawImage(redbird_upflap, 2 * canvas.width / 3 - 65, canvas.height / 4, birdSize[0], birdSize[1]);
+                        ctx.drawImage(bluebird_upflap, 3 * canvas.width / 3 - 65, canvas.height / 4 - birdSize[1], birdSize[0], birdSize[1]);
+                }
+                ctx.drawImage(day_night, 2 * canvas.width / 3 - 75, canvas.height / 2.4, day_night.width, day_night.height);
+                ctx.font = "normal 32px VT323";
+                ctx.fillStyle = "white";
+                if (isDay) {
+                    ctx.fillText("Day Theme", 85, 300);
+                } else {
+                    ctx.fillText("Night Theme", 75, 300);
+                }
+                switch (pipeColor) {
+                    case "green":
+                        ctx.drawImage(pipe_green_up, 0, 0, pipeWidth, canvas.height - 150, canvas.width / 4, canvas.height - 150, pipeWidth, canvas.height / 3);
+                        ctx.drawImage(pipe_red_up, 0, 0, pipeWidth, canvas.height - 110, canvas.width / 4 * 3 - pipeWidth, canvas.height - 110, pipeWidth, canvas.height / 3);
+                        break;
+                    case "red":
+                        ctx.drawImage(pipe_green_up, 0, 0, pipeWidth, canvas.height - 110, canvas.width / 4, canvas.height - 110, pipeWidth, canvas.height / 3);
+                        ctx.drawImage(pipe_red_up, 0, 0, pipeWidth, canvas.height - 150, canvas.width / 4 * 3 - pipeWidth, canvas.height - 150, pipeWidth, canvas.height / 3);
+                }
+                now = Date.now();
             }
-            switch (pipeColor) {
-                case "green":
-                    ctx.drawImage(pipe_green_up, 0, 0, pipeWidth, canvas.height - 150, canvas.width / 4, canvas.height - 150, pipeWidth, canvas.height / 3);
-                    ctx.drawImage(pipe_red_up, 0, 0, pipeWidth, canvas.height - 110, canvas.width / 4 * 3 - pipeWidth, canvas.height - 110, pipeWidth, canvas.height / 3);
-                    break;
-                case "red":
-                    ctx.drawImage(pipe_green_up, 0, 0, pipeWidth, canvas.height - 110, canvas.width / 4, canvas.height - 110, pipeWidth, canvas.height / 3);
-                    ctx.drawImage(pipe_red_up, 0, 0, pipeWidth, canvas.height - 150, canvas.width / 4 * 3 - pipeWidth, canvas.height - 150, pipeWidth, canvas.height / 3);
-            }
-
-
         }
     }
 
@@ -175,8 +180,6 @@ const render = () => {
 
     document.getElementById('bestScore').innerHTML = "Best : " + bestScore;
     document.getElementById('currentScore').innerHTML = "Current : " + currentScore;
-
-    window.requestAnimationFrame(render);
 }
 
 function drawBirdUp(dx) {
@@ -264,8 +267,6 @@ function drawBackground(image) {
     ctx.drawImage(image, 0, 0, canvas.width, canvas.height, -((backgroundPosition * (speed / 2)) % canvas.width), 0, canvas.width, canvas.height);
 }
 
-startGame();
-background_day.onload = render;
 
 canvas.addEventListener("click", function(e) {
     isParameters = openParameters(e.offsetX, e.offsetY);
@@ -284,10 +285,12 @@ canvas.addEventListener("click", function(e) {
 });
 
 function openParameters(x, y) {
-    isOnSettings(x, y);
-    isOnBirds(x, y);
-    isOnTheme(x, y);
-    isOnPipes(x, y);
+    if (!isPlaying) {
+        isOnSettings(x, y);
+        isOnBirds(x, y);
+        isOnTheme(x, y);
+        isOnPipes(x, y);
+    }
     return gameStatus;
 }
 
@@ -300,13 +303,10 @@ function isOnSettings(x, y) {
     let right = canvas.width
     let top = 0;
     let bottom = settings.height;
-    if (right >= x && left <= x && bottom >= y && top <= y) {
-        if (!isPlaying) {
-            gameStatus = (gameStatus + 1) % 2;
-        }
-    } else {
+    if (right >= x && left <= x && bottom >= y && top <= y)
+        gameStatus = (gameStatus + 1) % 2;
+    else
         gameStatus = (gameStatus + 1) % 2 + 1;
-    }
 }
 
 function isOnBirds(x, y) {
@@ -314,29 +314,20 @@ function isOnBirds(x, y) {
     let right = canvas.width / 3 - 65 + birdSize[0];
     let top = canvas.height / 4;
     let bottom = (canvas.height / 4) + birdSize[1];
-    if (right >= x && left <= x && bottom >= y && top <= y) {
-        if (!isPlaying) {
-            birdColor = "yellow";
-        }
-    }
+    if (right >= x && left <= x && bottom >= y && top <= y)
+        birdColor = "yellow";
     left = (2 * canvas.width / 3) - 65;
     right = (2 * canvas.width / 3) - 65 + birdSize[0];
     top = canvas.height / 4;
     bottom = (canvas.height / 4) + birdSize[1];
-    if (right >= x && left <= x && bottom >= y && top <= y) {
-        if (!isPlaying) {
-            birdColor = "red";
-        }
-    }
+    if (right >= x && left <= x && bottom >= y && top <= y)
+        birdColor = "red";
     left = (3 * canvas.width / 3) - 65;
     right = (3 * canvas.width / 3) - 65 + birdSize[0];
     top = canvas.height / 4;
     bottom = (canvas.height / 4) + birdSize[1];
-    if (right >= x && left <= x && bottom >= y && top <= y) {
-        if (!isPlaying) {
-            birdColor = "blue";
-        }
-    }
+    if (right >= x && left <= x && bottom >= y && top <= y)
+        birdColor = "blue";
 }
 
 function isOnTheme(x, y) {
@@ -344,11 +335,8 @@ function isOnTheme(x, y) {
     let right = 2 * canvas.width / 3 - 75 + day_night.width;
     let top = canvas.height / 2.4;
     let bottom = canvas.height / 2.4 + day_night.height;
-    if (right >= x && left <= x && bottom >= y && top <= y) {
-        if (!isPlaying) {
-            isDay = !isDay;
-        }
-    }
+    if (right >= x && left <= x && bottom >= y && top <= y)
+        isDay = !isDay;
 }
 
 function isOnPipes(x, y) {
@@ -356,18 +344,24 @@ function isOnPipes(x, y) {
     let right = (canvas.width / 4) + pipeWidth;
     let top = canvas.height - 110;
     let bottom = canvas.height;
-    if (right >= x && left <= x && bottom >= y && top <= y) {
-        if (!isPlaying) {
-            pipeColor = "green";
-        }
-    }
+    if (right >= x && left <= x && bottom >= y && top <= y)
+        pipeColor = "green";
     left = (3 * canvas.width) / 4 - pipeWidth;
     right = (3 * canvas.width / 4);
     top = canvas.height - 110;
     bottom = canvas.height;
-    if (right >= x && left <= x && bottom >= y && top <= y) {
-        if (!isPlaying) {
-            pipeColor = "red";
-        }
-    }
+    if (right >= x && left <= x && bottom >= y && top <= y)
+        pipeColor = "red";
 }
+
+let fpsInterval, fps, startTime, now, then, elapsed;
+
+function startAnimating(fps) {
+    fpsInterval = 1000 / fps;
+    then = Date.now();
+    startTime = then;
+    render();
+}
+
+startGame();
+background_day.onload = startAnimating(60);
