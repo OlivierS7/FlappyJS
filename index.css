@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+body {
+    margin: 0;
+    text-align: center;
+    font-family: 'VT323', 'Courier New', Courier, monospace;
+    user-select: none;
+}
+
+header {
+    margin: 0 auto;
+    width: 288px;
+}
+
+h1 {
+    margin: 0;
+    padding: 1.2rem 0;
+}
+
+.score-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background-color: #29e953;
+    font-size: 1.4em;
+}
